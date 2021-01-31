@@ -159,3 +159,69 @@ EXCEPT
 SELECT name
 FROM cities
 ORDER BY capital;
+
+/*Select all country codes in the Middle East as a single field result using SELECT, FROM, and WHERE.*/
+
+SELECT code
+FROM countries
+WHERE region = 'Middle East';
+
+/*Select only unique languages by name appearing in the languages table.
+Order the resulting single field table by name in ascending order.*/
+
+SELECT DISTINCT name
+FROM languages
+ORDER BY name;
+
+/*Now combine the previous two queries into one query:
+Add a WHERE IN statement to the SELECT DISTINCT query, 
+and use the commented out query from the first instruction in there. 
+That way, you can determine the unique languages spoken in the Middle East.*/
+
+SELECT DISTINCT name
+FROM languages
+WHERE code IN
+  (SELECT code
+  FROM countries
+  WHERE region = 'Middle East')
+ORDER BY name;
+
+/*Begin by determining the number of countries in countries that are listed in Oceania using SELECT, FROM, and WHERE.*/
+
+SELECT COUNT(*)
+FROM countries
+WHERE continent = 'Oceania';
+
+/*Identify the currencies used in Oceanian countries.*/
+
+SELECT code, name, basic_unit AS currency
+FROM countries AS c1
+JOIN currencies AS c2 
+USING(code)
+WHERE continent LIKE 'Oceania';
+
+/*Note that not all countries in Oceania were listed in the resulting inner join with currencies. Use an anti-join to determine which countries were not included!*/
+
+SELECT code, name
+FROM countries 
+WHERE continent LIKE 'Oceania'
+AND code NOT IN
+  	(SELECT code
+	 FROM currencies);
+
+/*Identify the country codes that are included in either economies or currencies but not in populations.
+Use that result to determine the names of cities in the countries that match the specification in the previous instruction.*/
+
+SELECT name
+FROM cities AS c1
+WHERE country_code IN
+(
+    SELECT e.code
+    FROM economies AS e
+    UNION
+    SELECT c2.code
+    FROM currencies AS c2
+    EXCEPT
+    SELECT p.country_code
+    FROM populations AS p
+);
